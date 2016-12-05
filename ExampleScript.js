@@ -159,9 +159,9 @@ handlers.getFriendsChars = function (args, context) {
     
     var data  =   server.GetUserData({
          PlayFabId: currentPlayerId,
-                 Data: ["player"]
+                 Keys: ["player"]
     });
-    return { data.Data };
+    return { data };
 }
 
 
