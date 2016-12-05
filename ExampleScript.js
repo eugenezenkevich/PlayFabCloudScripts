@@ -146,6 +146,19 @@ handlers.completedLevel = function (args, context) {
     log.debug("Updated level_monster_kills stat for player " + currentPlayerId + " to " + monstersKilled);
 }
 
+handlers.getFriendsChars = function () {
+  //  var level = args.levelName;
+  //  var monstersKilled = args.monstersKilled;
+    
+    var data  =   server.GetUserData({
+         PlayFabId: currentPlayerId,
+                 Data: ["player"]
+    });
+
+    log.debug("playerData: " + data);
+}
+
+
 
 // In addition to the Cloud Script handlers, you can define your own functions and call them from your handlers. 
 // This makes it possible to share code between multiple handlers and to improve code organization.
@@ -214,6 +227,8 @@ function processPlayerMove(playerMove) {
 
     return true;
 }
+
+
 
 // This is an example of using PlayStream real-time segmentation to trigger
 // game logic based on player behavior. (https://playfab.com/introducing-playstream/)
