@@ -35,7 +35,7 @@
 // (https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript)
 // "context" contains additional information when the Cloud Script function is called from a PlayStream action.
 handlers.helloWorld = function (args, context) {
-    
+
     // The pre-defined "currentPlayerId" variable is initialized to the PlayFab ID of the player logged-in on the game client. 
     // Cloud Script handles authenticating the player automatically.
     var message = "Hello " + currentPlayerId + "!";
@@ -57,15 +57,15 @@ handlers.helloWorld = function (args, context) {
 
 // This is a simple example of making a PlayFab server API call
 handlers.makeAPICall = function (args, context) {
-    
+
     // The pre-defined "server" object has functions corresponding to each PlayFab server API 
     // (https://api.playfab.com/Documentation/Server). It is automatically 
     // authenticated as your title and handles all communication with 
     // the PlayFab API, so you don't have to write extra code to issue HTTP requests. 
-    var playerStatResult = server.UpdateUserStatistics (
+    var playerStatResult = server.UpdateUserStatistics(
         {
             PlayFabId: currentPlayerId,
-            UserStatistics: {Level:2}
+            UserStatistics: { Level: 2 }
         }
     );
 }
@@ -75,7 +75,7 @@ handlers.makeHTTPRequest = function (args, context) {
     var headers = {
         "X-MyCustomHeader": "Some Value"
     };
-    
+
     var body = {
         input: args,
         userId: currentPlayerId,
@@ -87,7 +87,7 @@ handlers.makeHTTPRequest = function (args, context) {
     var httpMethod = "post";
     var contentType = "application/json";
     var logRequestAndResponse = true;
-    
+
     // The pre-defined http object makes synchronous HTTP requests
     var response = http.request(url, httpMethod, content, contentType, headers, logRequestAndResponse);
     return { responseContent: response };
@@ -96,19 +96,19 @@ handlers.makeHTTPRequest = function (args, context) {
 // This is a simple example of a function that is called from a
 // PlayStream event action. (https://playfab.com/introducing-playstream/)
 handlers.handlePlayStreamEventAndProfile = function (args, context) {
-    
+
     // The event that triggered the action 
     // (https://api.playfab.com/playstream/docs/PlayStreamEventModels)
     var psEvent = context.playStreamEvent;
-    
+
     // The profile data of the player associated with the event
     // (https://api.playfab.com/playstream/docs/PlayStreamProfileModels)
     var profile = context.playerProfile;
-    
+
     // Post data about the event to an external API
-    var content = JSON.stringify({user: profile.PlayerId, event: psEvent.EventName});
+    var content = JSON.stringify({ user: profile.PlayerId, event: psEvent.EventName });
     var response = http.request('https://httpbin.org/status/200', 'post', content, 'application/json', null, true);
-    
+
     return { externalAPIResponse: response };
 }
 
@@ -126,7 +126,7 @@ handlers.handlePlayStreamEventAndProfile = function (args, context) {
 handlers.completedLevel = function (args, context) {
     var level = args.levelName;
     var monstersKilled = args.monstersKilled;
-    
+
     var updateUserDataResult = server.UpdateUserInternalData({
         PlayFabId: currentPlayerId,
         Data: {
@@ -147,21 +147,26 @@ handlers.completedLevel = function (args, context) {
 }
 
 handlers.getFriendsChars = function () {
-  //  var level = args.levelName;
-  //  var monstersKilled = args.monstersKilled;
-    
+    //  var level = args.levelName;
+    //  var monstersKilled = args.monstersKilled;
+
 
 
     log.debug("playerData: " + data);
 }
 
 handlers.getFriendsChars = function (args, context) {
-    
-    var data  =   server.GetUserData({
-         PlayFabId: currentPlayerId,
-                 Keys: ["player"]
+
+    var playerData = server.GetUserData({
+        PlayFabId: currentPlayerId,
+        Keys: ["player"]
     });
-    return { data.Data.player };
+    if (playerData.Data.hasOwnProperty("player")) {
+        var player = playerData.Data["player"];
+        return { player };
+    }
+    else
+        return { log.info("no data player") };
 }
 
 
@@ -240,18 +245,17 @@ function processPlayerMove(playerMove) {
 // The function is called when a player_statistic_changed PlayStream event causes a player 
 // to enter a segment defined for high skill players. It sets a key value in
 // the player's internal data which unlocks some new content for the player.
-handlers.unlockHighSkillContent = function(args, context)
-{
+handlers.unlockHighSkillContent = function (args, context) {
     var playerStatUpdatedEvent = context.playStreamEvent;
-    
+
     var playerInternalData = server.UpdateUserInternalData(
-    {
-        PlayFabId: currentPlayerId,
-        "Data": {
-            "HighSkillContent": true,
-            "XPAtHighSkillUnlock": playerStatUpdatedEvent.StatisticValue
-          }
-    });
+        {
+            PlayFabId: currentPlayerId,
+            "Data": {
+                "HighSkillContent": true,
+                "XPAtHighSkillUnlock": playerStatUpdatedEvent.StatisticValue
+            }
+        });
 
     log.info('Unlocked HighSkillContent for ' + context.playerProfile.DisplayName);
     return { profile: context.playerProfile };
@@ -290,7 +294,7 @@ handlers.RoomClosed = function (args) {
 
 // Triggered automatically when a Photon room game property is updated.
 // Note: currentPlayerId is undefined in this function
-handlers.RoomPropertyUpdated = function(args) {
+handlers.RoomPropertyUpdated = function (args) {
     log.debug("Room Property Updated - Game: " + args.GameId);
 }
 
