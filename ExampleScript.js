@@ -161,7 +161,7 @@ handlers.getFriendsChars = function (args, context) {
          PlayFabId: currentPlayerId,
                  Keys: ["player"]
     });
-    return { data };
+    return { data.Data.player };
 }
 
 
